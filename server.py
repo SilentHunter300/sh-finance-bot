@@ -149,3 +149,32 @@ def webhook():
 @app.route("/", methods=["GET"])
 def health():
     return "Silent Hunter Finance — Running", 200
+
+
+@app.route("/test", methods=["GET"])
+def test():
+    results = {}
+    try:
+        from config import BOT_TOKEN, SPREADSHEET_ID, GOOGLE_CREDENTIALS_JSON, CREDENTIALS_FILE
+        results["BOT_TOKEN"] = "set" if BOT_TOKEN else "MISSING"
+        results["SPREADSHEET_ID"] = "set" if SPREADSHEET_ID else "MISSING"
+        results["GOOGLE_CREDENTIALS_JSON"] = "set" if GOOGLE_CREDENTIALS_JSON else "MISSING"
+        results["CREDENTIALS_FILE"] = CREDENTIALS_FILE or "not set"
+    except Exception as e:
+        results["config_error"] = str(e)
+
+    try:
+        from sheets import spreadsheet
+        ss = spreadsheet()
+        results["sheets"] = f"connected: {ss.title}"
+    except Exception as e:
+        results["sheets_error"] = str(e)
+
+    try:
+        from sheets import get_config
+        cid = get_config("chat_id")
+        results["chat_id"] = cid or "not set"
+    except Exception as e:
+        results["chat_id_error"] = str(e)
+
+    return jsonify(results)
