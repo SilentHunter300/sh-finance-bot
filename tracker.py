@@ -4,7 +4,7 @@ tracker.py — Parse messages, log to Google Sheets, read summaries.
 import re
 from datetime import datetime
 
-from config import CATEGORIES, UNCATEGORIZED, SALARY, FIXED_MONTHLY
+from config import CATEGORIES, UNCATEGORIZED, SALARY, FIXED_MONTHLY, INCOME_KEYWORDS
 from rates import get_rates, to_egp
 from sheets import ws, ensure_sheets
 
@@ -27,14 +27,16 @@ def parse_message(text: str) -> dict | None:
     extra       = m.group(4).strip()
 
     combined = f"{description} {extra}".lower()
+    is_income = any(k in combined for k in INCOME_KEYWORDS)
 
     return {
         "description": description.title(),
         "amount":      amount,
         "currency":    currency,
-        "category":    _detect_category(combined),
-        "source":      _detect_source(combined),
+        "category":    "Income" if is_income else _detect_category(combined),
+        "source":      "Salary" if is_income else _detect_source(combined),
         "notes":       extra,
+        "is_income":   is_income,
     }
 
 
@@ -113,9 +115,10 @@ def get_month_summary(month: str | None = None) -> dict:
     month = month or datetime.now().strftime("%Y-%m")
 
     rows    = ws("Transactions").get_all_values()
-    by_cat  = {}
-    total   = 0.0
-    count   = 0
+    by_cat      = {}
+    total       = 0.0
+    total_income = 0.0
+    count       = 0
 
     for row in rows[1:]:                        # skip header
         if not row or not row[0].startswith(month):
@@ -125,19 +128,22 @@ def get_month_summary(month: str | None = None) -> dict:
         except (ValueError, IndexError):
             continue
         cat = row[7] if len(row) > 7 else UNCATEGORIZED
-        by_cat[cat] = by_cat.get(cat, 0.0) + amt
-        total  += amt
-        count  += 1
+        if cat == "Income":
+            total_income += amt
+        else:
+            by_cat[cat] = by_cat.get(cat, 0.0) + amt
+            total += amt
+        count += 1
 
     fixed     = sum(FIXED_MONTHLY.values())
-    remaining = SALARY - fixed - total
+    remaining = total_income - fixed - total
 
     return {
-        "month":       month,
-        "total":       round(total, 2),
-        "count":       count,
-        "by_category": by_cat,
-        "fixed":       round(fixed, 2),
-        "salary":      SALARY,
-        "remaining":   round(remaining, 2),
+        "month":        month,
+        "total":        round(total, 2),
+        "total_income": round(total_income, 2),
+        "count":        count,
+        "by_category":  by_cat,
+        "fixed":        round(fixed, 2),
+        "remaining":    round(remaining, 2),
     }

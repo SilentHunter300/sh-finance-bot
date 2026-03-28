@@ -30,6 +30,8 @@ DEBTS = [
 ]
 
 # ── Category Keywords ─────────────────────────────────────────────────────────
+INCOME_KEYWORDS = ["salary", "income", "bonus", "freelance", "payment received"]
+
 CATEGORIES = {
     "Food & Drink": [
         "coffee", "lunch", "dinner", "breakfast", "food", "pizza", "burger",

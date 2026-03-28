@@ -89,11 +89,11 @@ def webhook():
             lines.append("_No expenses logged yet._")
         lines += [
             "",
-            f"Salary: *{s['salary']:,.0f} EGP*",
+            f"Income: *+{s['total_income']:,.0f} EGP*",
             f"Fixed (loan): *-{s['fixed']:,.0f} EGP*",
-            f"Spent: *-{s['total']:,.0f} EGP* ({s['count']} entries)",
+            f"Spent: *-{s['total']:,.0f} EGP*",
             "",
-            f"Est. remaining: *{s['remaining']:,.0f} EGP*",
+            f"Remaining: *{s['remaining']:,.0f} EGP*",
         ]
         reply(chat_id, "\n".join(lines))
 
