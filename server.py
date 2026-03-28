@@ -146,6 +146,15 @@ def webhook():
     return jsonify({"ok": True})
 
 
+@app.route("/api/summary", methods=["GET"])
+def api_summary():
+    try:
+        s = get_month_summary()
+        return jsonify(s)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/", methods=["GET"])
 def health():
     return "Silent Hunter Finance — Running", 200

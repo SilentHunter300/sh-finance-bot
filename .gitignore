@@ -1,5 +1,6 @@
 .env
 sh-finance*.json
+*credentials*.txt
 __pycache__/
 data/
 *.bat
