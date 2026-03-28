@@ -46,21 +46,15 @@ def _detect_category(text: str) -> str:
 
 
 def _detect_source(text: str) -> str:
-    mapping = {
-        "swype":   "CIB Swype",
-        "cib":     "CIB Platinum",
-        "hsbc":    "HSBC",
-        "fawry":   "Fawry",
-        "khazna":  "Khazna",
-        "premium": "Premium Card",
-        "cash":    "Cash",
-        "atm":     "Cash",
-        "wallet":  "Phone Wallet",
-    }
-    for kw, source in mapping.items():
-        if kw in text:
-            return source
-    return "-"
+    if "swype" in text:
+        return "CIB Swype"
+    if "hsbc" in text:
+        return "HSBC"
+    if "fawry" in text:
+        return "Fawry"
+    if "cash" in text or "atm" in text or "withdrawal" in text:
+        return "Cash"
+    return "CIB Platinum"  # default
 
 
 # ── Write ─────────────────────────────────────────────────────────────────────
