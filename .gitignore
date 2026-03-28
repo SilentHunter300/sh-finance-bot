@@ -1,0 +1,6 @@
+.env
+sh-finance*.json
+__pycache__/
+data/
+*.bat
+*.vbs
